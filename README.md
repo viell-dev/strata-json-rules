@@ -8,6 +8,38 @@ and add their own.
 
 This crate is in initial development. The public API is not settled yet.
 
+## Usage
+
+```rust
+use std::io::Cursor;
+use strata_json_rules::{JsonToken, strict_scanner};
+use strata_lexer::{LexError, Lexer};
+
+fn main() -> Result<(), LexError> {
+    let mut lexer = Lexer::new(Cursor::new(r#"{"a": 1}"#), strict_scanner());
+    let mut kinds = Vec::new();
+
+    loop {
+        let token = lexer.next_token()?;
+        let done = token.kind == JsonToken::Eof;
+        kinds.push((token.kind, token.span().start(), token.span().end()));
+
+        if done {
+            break;
+        }
+    }
+
+    assert_eq!(kinds.first(), Some(&(JsonToken::LeftBrace, 0, 1)));
+    assert_eq!(kinds.last(), Some(&(JsonToken::Eof, 8, 8)));
+    Ok(())
+}
+```
+
+Superset languages lift these rules into their own kind enum with
+`strata_lexer::MatcherExt::map_kind` and add only the rules that differ; see
+[docs/strata-json-rules.md](docs/strata-json-rules.md) for the design reference and the
+composition pattern.
+
 ## Minimum Supported Rust Version
 
 The MSRV is **1.87.0**.

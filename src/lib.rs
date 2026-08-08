@@ -26,3 +26,8 @@ pub use rules::{
     strict_rule_set, strict_scanner,
 };
 pub use shared::SharedRuleSet;
+
+/// Compile-checks the README examples alongside the doctests.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+mod readme {}
